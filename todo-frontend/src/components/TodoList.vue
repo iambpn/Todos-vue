@@ -16,8 +16,7 @@
           :key="todo.id"
           v-bind="todo"
           @todoDelete="handleDelete"
-          @todoCompleted="handleCompleted"
-          @todoNotCompleted="handleNotCompleted"
+          @todoToggleCompleted="handleToggleCompleted"
       />
     </div>
     <div class="todo-completed">
@@ -27,8 +26,7 @@
           :key="todo.id"
           v-bind="todo"
           @todoDelete="handleDelete"
-          @todoCompleted="handleCompleted"
-          @todoNotCompleted="handleNotCompleted"
+          @todoToggleCompleted="handleToggleCompleted"
       />
     </div>
   </div>
@@ -37,16 +35,14 @@
 <script>
 import TodoItem from "@/components/TodoItem";
 import {computed, reactive} from "vue";
+import {config} from "../../config";
 
 export default {
   name: "TodoList",
   props: {
-    todos: Array
+    todos: Array //pass by reference because array|object are pass by reference
   },
   components: {TodoItem},
-  updated() {
-    console.log("list update")
-  },
   setup(props) {
     const state = reactive({
       todos: props.todos
@@ -55,28 +51,46 @@ export default {
     const filterRemaining = computed(() => state.todos.filter(todo => !todo.completed))
 
     function handleDelete(id) {
-      state.todos = state.todos.filter(todo => todo.id !== id);
+      const todo = state.todos.find(todo => todo.id === id);
+      state.todos.splice(state.todos.indexOf(todo), 1);
 
-      // Opinion: optimized way but not sure
-      // const todo = state.todos.find(todo=>todo.id===id);
-      // state.todos.splice(state.todos.indexOf(todo),1);
+      (async () => {
+        let res = await fetch(config.api_url + "api/todo", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({id})
+        });
+        let data = await res.json();
+        if (!res.ok) {
+          console.log(data.message);
+        }
+      })();
     }
 
-    function handleCompleted(id) {
+    function handleToggleCompleted(id) {
       const todo = state.todos.find(todo => todo.id === id);
-      todo.completed = true;
-    }
-
-    function handleNotCompleted(id) {
-      const todo = state.todos.find(todo => todo.id === id);
-      todo.completed = false;
+      todo.completed = !todo.completed;
+      (async () => {
+        let res = await fetch(config.api_url + "api/todo/completed", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({id})
+        });
+        let data = await res.json();
+        if (!res.ok) {
+          console.log(data.message);
+        }
+      })();
     }
 
     return {
       state,
       handleDelete,
-      handleCompleted,
-      handleNotCompleted,
+      handleToggleCompleted,
       filterCompleted,
       filterRemaining
     }
