@@ -51,7 +51,8 @@
   color: #0060df;
   font-size: 1.1rem;
 }
-.strike{
+
+.strike {
   text-decoration: line-through;
 }
 </style>
@@ -59,7 +60,7 @@
 <template>
   <div class="todo-item">
     <div class="todo-done">
-      <input type="checkbox" title="Done" @change="toggleDone" v-model="state.checkbox">
+      <input type="checkbox" title="Done" v-model="state.completed">
     </div>
     <div class="todo-content">
       <p :class="{'strike':state.completed}">
@@ -73,38 +74,31 @@
 </template>
 
 <script>
-import {reactive} from "vue";
+import {reactive, watch} from "vue";
 
 export default {
   name: "TodoItem",
   props: {
-    id: Number,
+    id: String,
     content: String,
     completed: Boolean
   },
   setup(props, context) {
     const state = reactive({
-      checkbox: props.completed,
-      completed:props.completed
+      completed: props.completed
     })
 
     function handleDelete() {
       context.emit("todoDelete", props.id)
     }
 
-    function toggleDone(e) {
-      if (e.target.checked) {
-        context.emit("todoCompleted", props.id)
-      } else {
-        context.emit("todoNotCompleted", props.id)
-      }
-      state.completed = state.checkbox;
-    }
+    watch(() => state.completed, () => {
+      context.emit("todoToggleCompleted", props.id)
+    })
 
     return {
       state,
-      handleDelete,
-      toggleDone
+      handleDelete
     }
   }
 }
