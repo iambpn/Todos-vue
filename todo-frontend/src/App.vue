@@ -35,16 +35,17 @@ export default {
     const state = reactive({
       todos: []
     })
-    onMounted(() => {
-      state.todos = [
-        {id: 1, content: "1st to-do", completed: false},
-        {id: 2, content: "2st to-do", completed: true},
-        {id: 3, content: "3st to-do", completed: false}
-      ]
+    onMounted(async () => {
+      const res = await fetch(config.api_url + "api/todo");
+      const data = await res.json();
+      if (res.ok) {
+        state.todos = [...data];
+      } else {
+        console.log(data.message);
+      }
     });
 
     async function addTodo(content) {
-      console.log(content);
       const res = await fetch(config.api_url + "api/addTodo", {
         method: "POST",
         headers: {
@@ -53,9 +54,7 @@ export default {
         body: JSON.stringify({content})
       })
       const data = await res.json();
-
       if (res.ok) {
-        console.log(data)
         state.todos.unshift({...data});
       } else {
         console.log(data.message)
