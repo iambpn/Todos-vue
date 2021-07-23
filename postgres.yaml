@@ -1,0 +1,21 @@
+version: "3"
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: "password"
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  adminer: # Database GUI tool
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+volumes:
+  db-data:
+    driver: local
+# run this docker-compose use this command: `docker-compose -f 'NameOfThisFile' up -d` [-d for running on detached mode]
+# connect to exec(console) of db: docker exec -it -u username container_name bash
