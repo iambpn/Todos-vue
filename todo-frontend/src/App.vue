@@ -46,7 +46,7 @@ export default {
     });
 
     async function addTodo(content) {
-      const res = await fetch(config.api_url + "api/addTodo", {
+      const res = await fetch(config.api_url + "api/todo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
