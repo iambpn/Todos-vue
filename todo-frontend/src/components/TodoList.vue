@@ -78,7 +78,7 @@ export default {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({id})
+          body: JSON.stringify({id, updateData: {completed: todo.completed}})
         });
         let data = await res.json();
         if (!res.ok) {
