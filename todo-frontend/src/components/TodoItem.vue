@@ -91,7 +91,8 @@ export default {
     function handleDelete() {
       context.emit("todoDelete", props.id)
     }
-
+    
+    // cannot used direct state.completed. need to use getter method. i.e method that returns the state value. 
     watch(() => state.completed, () => {
       context.emit("todoToggleCompleted", props.id)
     })
